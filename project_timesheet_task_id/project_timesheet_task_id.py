@@ -59,3 +59,13 @@ class HrAnalyticTimesheet(models.Model):
             })
 
         return res
+
+    @api.multi
+    def unlink(self):
+        """When deleting a record, delete related project.task.work record"""
+        to_delete = self.env['project.task.work'].search([
+            ('hr_analytic_timesheet_id', 'in', self.mapped('id')),
+        ])
+
+        super(HrAnalyticTimesheet, self).unlink()
+        to_delete.unlink()
