@@ -37,3 +37,25 @@ class HrAnalyticTimesheet(models.Model):
     _inherit = 'hr.analytic.timesheet'
 
     task_id = fields.Many2one('project.task', 'Task')
+
+    @api.model
+    def create(self, vals):
+        """When create a new record, create the project.task.work record
+        """
+        res = super(HrAnalyticTimesheet, self).create(vals)
+        if res.task_id.exists():
+            # Disable creation of analytic_entry when creating
+            # project.task.work as there is already created
+            task_work_obj = self.env['project.task.work'].with_context(
+                no_analytic_entry=True,
+            )
+            task_work = task_work_obj.create({
+                'name': res.name,
+                'hours': res.unit_amount,
+                'date': res.date,
+                'user_id': res.user_id.id,
+                'task_id': res.task_id.id,
+                'hr_analytic_timesheet_id': res.id,
+            })
+
+        return res
