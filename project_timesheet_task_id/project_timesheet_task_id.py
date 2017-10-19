@@ -36,4 +36,4 @@ class ProjectWork(models.Model):
 class HrAnalyticTimesheet(models.Model):
     _inherit = 'hr.analytic.timesheet'
 
-    task_id = fields.Integer('Task ID', readonly=True)
+    task_id = fields.Many2one('project.task', 'Task')
